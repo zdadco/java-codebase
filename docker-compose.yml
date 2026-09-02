@@ -54,6 +54,7 @@ services:
       GITLAB_URL: ${GITLAB_URL:-}
       GITLAB_TOKEN: ${GITLAB_TOKEN:-}
       INDEXER_TOKEN: ${INDEXER_TOKEN:-changeme}
+      JAVA_TOOL_OPTIONS: "-Djdk.internal.httpclient.disableHostnameVerification=true"
 
 volumes:
   pgdata:

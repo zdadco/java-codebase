@@ -27,6 +27,8 @@ REST и MCP ходят в общий `SearchService` из `indexer-core`. Век
 
 На Windows Maven Wrapper: `mvnw.cmd`. Unix-скрипта `mvnw` в репозитории нет; сборка образа идёт через `maven:3.9.9-eclipse-temurin-21` в `Dockerfile`.
 
+Исходящий HTTPS (OpenAI, Git clone через JGit, JDK HttpClient) **не проверяет TLS-сертификаты и hostname** — удобно за SSL-inspecting proxy. Это не для недоверенной сети.
+
 ## Переменные окружения
 
 Значения по умолчанию — из `indexer-api/src/main/resources/application.yml` и `docker-compose.yml`.
