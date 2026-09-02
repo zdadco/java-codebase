@@ -18,31 +18,37 @@ public class CodeDocumentFactory {
 
     public Document toDocument(CodeChunk chunk) {
         Map<String, Object> metadata = new LinkedHashMap<>();
-        metadata.put("repo_path", chunk.repoPath());
-        metadata.put("gitlab_project_id", chunk.gitlabProjectId());
-        metadata.put("commit_sha", chunk.commitSha());
-        metadata.put("branch", chunk.branch());
-        metadata.put("file_path", chunk.filePath());
-        metadata.put("package", chunk.packageName());
-        metadata.put("qualified_name", chunk.qualifiedName());
-        metadata.put("symbol_type", chunk.symbolType());
-        metadata.put("name", chunk.name());
-        metadata.put("signature", chunk.signature());
-        metadata.put("modifiers", String.join(",", chunk.modifiers()));
-        metadata.put("annotations", String.join(",", chunk.annotations()));
-        metadata.put("stereotype", chunk.stereotype());
-        metadata.put("http_method", chunk.httpMethod());
-        metadata.put("http_path", chunk.httpPath());
-        metadata.put("extends", chunk.extendsType());
-        metadata.put("implements", String.join(",", chunk.implementsTypes()));
-        metadata.put("calls", String.join(",", chunk.calls()));
-        metadata.put("injects", String.join(",", chunk.injects()));
-        metadata.put("javadoc_summary", chunk.javadocSummary());
-        metadata.put("line_start", chunk.lineStart());
-        metadata.put("line_end", chunk.lineEnd());
-        metadata.put("content_hash", chunk.contentHash());
-        metadata.put("indexed_at", Instant.now().toString());
-        metadata.put("language", "java");
+        put(metadata, "repo_path", chunk.repoPath());
+        put(metadata, "gitlab_project_id", chunk.gitlabProjectId());
+        put(metadata, "commit_sha", chunk.commitSha());
+        put(metadata, "branch", chunk.branch());
+        put(metadata, "file_path", chunk.filePath());
+        put(metadata, "package", chunk.packageName());
+        put(metadata, "qualified_name", chunk.qualifiedName());
+        put(metadata, "symbol_type", chunk.symbolType());
+        put(metadata, "name", chunk.name());
+        put(metadata, "signature", chunk.signature());
+        put(metadata, "modifiers", String.join(",", chunk.modifiers()));
+        put(metadata, "annotations", String.join(",", chunk.annotations()));
+        put(metadata, "stereotype", chunk.stereotype());
+        put(metadata, "http_method", chunk.httpMethod());
+        put(metadata, "http_path", chunk.httpPath());
+        put(metadata, "extends", chunk.extendsType());
+        put(metadata, "implements", String.join(",", chunk.implementsTypes()));
+        put(metadata, "calls", String.join(",", chunk.calls()));
+        put(metadata, "injects", String.join(",", chunk.injects()));
+        put(metadata, "javadoc_summary", chunk.javadocSummary());
+        put(metadata, "line_start", chunk.lineStart());
+        put(metadata, "line_end", chunk.lineEnd());
+        put(metadata, "content_hash", chunk.contentHash());
+        put(metadata, "indexed_at", Instant.now().toString());
+        put(metadata, "language", "java");
         return new Document(chunk.pointId(), formatter.format(chunk), metadata);
+    }
+
+    private void put(Map<String, Object> metadata, String key, Object value) {
+        if (value != null) {
+            metadata.put(key, value);
+        }
     }
 }
