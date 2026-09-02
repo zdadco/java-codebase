@@ -1,0 +1,16 @@
+index:knowledge-base:
+  stage: .post
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  script:
+    - |
+      curl --fail-with-body -X POST "${JAVA_KB_INDEXER_URL}/api/v1/index-jobs" \
+        -H "Authorization: Bearer ${JAVA_KB_INDEXER_TOKEN}" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"gitlab_project_id\": \"${CI_PROJECT_ID}\",
+          \"repo_path\": \"${CI_PROJECT_PATH}\",
+          \"repo_url\": \"${CI_REPOSITORY_URL}\",
+          \"commit_sha\": \"${CI_COMMIT_SHA}\",
+          \"branch\": \"${CI_COMMIT_REF_NAME}\"
+        }"

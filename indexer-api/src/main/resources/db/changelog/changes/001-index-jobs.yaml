@@ -1,0 +1,76 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-index-jobs
+      author: java-kb-indexer
+      changes:
+        - createTable:
+            tableName: index_jobs
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: gitlab_project_id
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: repo_path
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: repo_url
+                  type: varchar(1024)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: commit_sha
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: branch
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(16)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: error
+                  type: text
+              - column:
+                  name: started_at
+                  type: timestamp
+              - column:
+                  name: finished_at
+                  type: timestamp
+        - addUniqueConstraint:
+            constraintName: uk_index_jobs_repo_commit
+            tableName: index_jobs
+            columnNames: repo_path, commit_sha
+        - createTable:
+            tableName: indexed_repos
+            columns:
+              - column:
+                  name: repo_path
+                  type: varchar(512)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: latest_commit_sha
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_indexed_at
+                  type: timestamp
+                  constraints:
+                    nullable: false

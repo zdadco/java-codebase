@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: java-kb-indexer
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/java_kb}
+    username: ${DATABASE_USER:java_kb}
+    password: ${DATABASE_PASSWORD:java_kb}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      embedding:
+        options:
+          model: ${EMBEDDING_MODEL:text-embedding-3-small}
+          dimensions: ${EMBEDDING_DIMS:1536}
+    vectorstore:
+      qdrant:
+        host: ${QDRANT_HOST:localhost}
+        port: ${QDRANT_PORT:6334}
+        collection-name: java_kb
+        initialize-schema: true
+    mcp:
+      server:
+        name: java-kb
+        version: 0.0.1
+        type: SYNC
+        protocol: SSE
+        sse-endpoint: /mcp/sse
+        annotation-scanner:
+          enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+indexer:
+  api-token: ${INDEXER_TOKEN:changeme}
+  gitlab-token: ${GITLAB_TOKEN:}
+  embedding:
+    batch-size: ${EMBEDDING_BATCH_SIZE:50}
