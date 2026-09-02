@@ -1,7 +1,9 @@
 package ru.zdadco.indexer.core.parser;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
-import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -32,11 +34,12 @@ public class JavaSourceParser {
     public static final int MAX_METHOD_CHARS = 6_000;
 
     private final SpringMetadataExtractor metadataExtractor = new SpringMetadataExtractor();
+    private final ParserConfiguration configuration;
 
     public JavaSourceParser() {
         ParserConfiguration configuration = new ParserConfiguration();
         configuration.setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21);
-        StaticJavaParser.setConfiguration(configuration);
+        this.configuration = configuration;
     }
 
     public List<CodeChunk> parse(
@@ -47,7 +50,7 @@ public class JavaSourceParser {
             String commitSha,
             String branch
     ) {
-        CompilationUnit cu = StaticJavaParser.parse(source);
+        CompilationUnit cu = parseCompilationUnit(source);
         String packageName = cu.getPackageDeclaration()
                 .map(declaration -> declaration.getNameAsString())
                 .orElse("");
@@ -60,6 +63,14 @@ public class JavaSourceParser {
             chunks.addAll(parseType(type, source, filePath, repoPath, gitlabProjectId, commitSha, branch, packageName));
         }
         return chunks;
+    }
+
+    private CompilationUnit parseCompilationUnit(String source) {
+        ParseResult<CompilationUnit> result = new JavaParser(configuration).parse(source);
+        if (!result.isSuccessful() || result.getResult().isEmpty()) {
+            throw new ParseProblemException(result.getProblems());
+        }
+        return result.getResult().get();
     }
 
     private List<CodeChunk> parseType(

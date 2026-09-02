@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test;
 import ru.zdadco.indexer.core.chunker.CodeChunk;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -175,5 +178,47 @@ class JavaSourceParserTest {
                 .toList();
         assertThat(methodChunks.size()).isGreaterThan(1);
         assertThat(methodChunks).allMatch(chunk -> chunk.source().length() < 8_000);
+    }
+
+    @Test
+    void parsesRecordsOnADifferentThread() throws Exception {
+        String source = """
+                package com.example.domain;
+
+                public record UserId(Long value) {
+                    public UserId {
+                        if (value == null) {
+                            throw new IllegalArgumentException("value");
+                        }
+                    }
+
+                    public boolean assigned() {
+                        return value != null;
+                    }
+                }
+                """;
+
+        var executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<List<CodeChunk>> future = executor.submit(() -> parser.parse(
+                    source,
+                    "src/main/java/com/example/domain/UserId.java",
+                    "group/backend-service",
+                    "123",
+                    "abc123",
+                    "master"
+            ));
+            List<CodeChunk> chunks = future.get();
+            assertThat(chunks)
+                    .extracting(CodeChunk::symbolType)
+                    .contains("record", "method");
+            assertThat(chunks)
+                    .filteredOn(chunk -> "assigned".equals(chunk.name()))
+                    .isNotEmpty();
+        } catch (ExecutionException ex) {
+            throw ex.getCause() instanceof Exception cause ? cause : ex;
+        } finally {
+            executor.shutdownNow();
+        }
     }
 }
